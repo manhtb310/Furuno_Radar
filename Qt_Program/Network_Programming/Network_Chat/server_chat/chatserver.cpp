@@ -18,7 +18,9 @@ ChatServer::ChatServer(QWidget *parent)
     server = new QTcpServer();
 
     connect(server, SIGNAL(newConnection()), this, SLOT(addConnection()));
-    server_addr = QHostAddress::LocalHost; //Lay dia chi may host
+//    server_addr = QHostAddress::LocalHost; //Lay dia chi may host
+    server_addr = QHostAddress(ui->lineEditIP->text()); //Lay dia chi may host
+
     port = DEFAULT_PORT; //Cong mac dinh
 
     ui->lineEditIP->setText(server_addr.toString()); //Hien dia chi nay len lineEdit
