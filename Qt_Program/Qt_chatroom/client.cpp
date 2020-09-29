@@ -55,6 +55,7 @@ client::client(QWidget *parent)
     //Su kien san sang nhan du lieu
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(receiveMessage()));
+//    connect(socket, SIGNAL(connected()), this, SLOT(receiveMessage()));
 
     //Ban dau chua ket noi
 
@@ -150,7 +151,7 @@ void client::receiveMessage()
 {
 
     // missing some checks for returns values for the sake of simplicity
-
+//    qDebug() << socket->readAll();
     qint64 bytes = buffer->write(socket->readAll());
 
     // go back as many bytes as we just wrote so that it can be read
@@ -163,6 +164,7 @@ void client::receiveMessage()
 
     {
             QString line = buffer->readLine();
+            qDebug() << line ;
 
             ui->textEditChat->append(line.simplified());
     }

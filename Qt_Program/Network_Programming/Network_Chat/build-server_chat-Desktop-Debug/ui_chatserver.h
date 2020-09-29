@@ -37,6 +37,11 @@ public:
     QHBoxLayout *horizontalLayout;
     QPushButton *btnStart;
     QPushButton *btnStop;
+    QWidget *horizontalLayoutWidget_2;
+    QHBoxLayout *horizontalLayout_2;
+    QLabel *label_3;
+    QLineEdit *lineEditText;
+    QPushButton *btnSend;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -44,7 +49,7 @@ public:
     {
         if (ChatServer->objectName().isEmpty())
             ChatServer->setObjectName(QStringLiteral("ChatServer"));
-        ChatServer->resize(800, 600);
+        ChatServer->resize(908, 820);
         centralwidget = new QWidget(ChatServer);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         label = new QLabel(centralwidget);
@@ -83,10 +88,31 @@ public:
 
         horizontalLayout->addWidget(btnStop, 0, Qt::AlignRight);
 
+        horizontalLayoutWidget_2 = new QWidget(centralwidget);
+        horizontalLayoutWidget_2->setObjectName(QStringLiteral("horizontalLayoutWidget_2"));
+        horizontalLayoutWidget_2->setGeometry(QRect(70, 360, 671, 81));
+        horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
+        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
+        horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
+        label_3 = new QLabel(horizontalLayoutWidget_2);
+        label_3->setObjectName(QStringLiteral("label_3"));
+
+        horizontalLayout_2->addWidget(label_3);
+
+        lineEditText = new QLineEdit(horizontalLayoutWidget_2);
+        lineEditText->setObjectName(QStringLiteral("lineEditText"));
+
+        horizontalLayout_2->addWidget(lineEditText);
+
+        btnSend = new QPushButton(horizontalLayoutWidget_2);
+        btnSend->setObjectName(QStringLiteral("btnSend"));
+
+        horizontalLayout_2->addWidget(btnSend);
+
         ChatServer->setCentralWidget(centralwidget);
         menubar = new QMenuBar(ChatServer);
         menubar->setObjectName(QStringLiteral("menubar"));
-        menubar->setGeometry(QRect(0, 0, 800, 22));
+        menubar->setGeometry(QRect(0, 0, 908, 22));
         ChatServer->setMenuBar(menubar);
         statusbar = new QStatusBar(ChatServer);
         statusbar->setObjectName(QStringLiteral("statusbar"));
@@ -104,6 +130,8 @@ public:
         label_2->setText(QApplication::translate("ChatServer", "Port Number", Q_NULLPTR));
         btnStart->setText(QApplication::translate("ChatServer", "Start", Q_NULLPTR));
         btnStop->setText(QApplication::translate("ChatServer", "Stop", Q_NULLPTR));
+        label_3->setText(QApplication::translate("ChatServer", "Message", Q_NULLPTR));
+        btnSend->setText(QApplication::translate("ChatServer", "Send", Q_NULLPTR));
     } // retranslateUi
 
 };
