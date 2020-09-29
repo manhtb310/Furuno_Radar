@@ -163,6 +163,7 @@ void client::receiveMessage()
 
     {
             QString line = buffer->readLine();
+            qDebug() << line ;
 
             ui->textEditChat->append(line.simplified());
     }

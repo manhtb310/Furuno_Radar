@@ -18,7 +18,10 @@ ChatServer::ChatServer(QWidget *parent)
     server = new QTcpServer();
 
     connect(server, SIGNAL(newConnection()), this, SLOT(addConnection()));
-    server_addr = QHostAddress::LocalHost; //Lay dia chi may host
+    connect(ui->btnSend, SIGNAL(clicked()), this , SLOT(sendMessage()));
+
+    server_addr = QHostAddress(ui->lineEditIP->text()); //Lay dia chi may host
+
     port = DEFAULT_PORT; //Cong mac dinh
 
     ui->lineEditIP->setText(server_addr.toString()); //Hien dia chi nay len lineEdit
@@ -69,7 +72,10 @@ void ChatServer::addConnection()
     buffers.insert(connection,buffer);
 
     connect(connection, SIGNAL(disconnected()), this, SLOT(removeConnection()));
+//    connect(connection, SIGNAL(on_btnSend_clicked()), this , SLOT(on_btnSend_clicked()));
     connect(connection, SIGNAL(readyRead()), this , SLOT(receiveMessage()));
+//    connect(ui->btnSend, SIGNAL(clicked()), this , SLOT(on_btnSend_clicked()));
+
 }
 
 void ChatServer::removeConnection()
@@ -81,19 +87,54 @@ void ChatServer::removeConnection()
     connections.removeAll(socket);
     socket->deleteLater();
 }
+
+
 void ChatServer::receiveMessage()
 {
     QTcpSocket *socket = static_cast<QTcpSocket *>(sender());
+//    QByteArray line = ui->lineEditText->text().toLatin1();
     QBuffer *buffer = buffers.value(socket);
     qint64 bytes = buffer->write(socket->readAll());
+
     buffer->seek(buffer->pos() -bytes);
+    qDebug() << buffer;
 
     while (buffer->canReadLine())
     {
+        qDebug() << buffer->canReadLine();
         QByteArray line = buffer->readLine();
         foreach (QTcpSocket *connection, connections)
         {
             connection->write(line);
+//            ui->textEdit_SERVER->append(line);
         }
+        qDebug() << buffer->canReadLine();
     }
+}
+
+void ChatServer::sendMessage()
+{
+    QByteArray line = ui->lineEditText->text().toLatin1();
+    foreach (QTcpSocket *connection, connections)
+    {
+        qDebug() << connection ;
+        connection->write(line);
+        qDebug() << line ;
+    }
+    ui->lineEditText->clear();
+
+}
+
+
+void ChatServer::on_btnSend_clicked()
+{
+    QByteArray line = ui->lineEditText->text().toLatin1();
+    foreach (QTcpSocket *connection, connections)
+    {
+        qDebug() << connection ;
+        connection->write(line);
+        qDebug() << line ;
+    }
+    ui->lineEditText->clear();
+
 }

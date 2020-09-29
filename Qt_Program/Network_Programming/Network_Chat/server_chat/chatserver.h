@@ -36,9 +36,11 @@ private:
 private slots:
     void on_btnStop_clicked();
     void on_btnStart_clicked();
+    void on_btnSend_clicked();
 private slots:
     void addConnection(); //Xu ly khi co mot client ket noi den
     void removeConnection(); //Xu ly khi co mot client ngat ket noi
     void receiveMessage(); //Nhan thong diep tu cac client
+    void sendMessage();
 };
 #endif // CHATSERVER_H
