@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>775</width>
-    <height>687</height>
+    <width>1382</width>
+    <height>717</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <rect>
       <x>20</x>
       <y>480</y>
-      <width>741</width>
+      <width>671</width>
       <height>71</height>
      </rect>
     </property>
@@ -55,7 +55,7 @@
      <rect>
       <x>20</x>
       <y>10</y>
-      <width>741</width>
+      <width>671</width>
       <height>121</height>
      </rect>
     </property>
@@ -103,7 +103,7 @@
      <rect>
       <x>20</x>
       <y>140</y>
-      <width>741</width>
+      <width>671</width>
       <height>331</height>
      </rect>
     </property>
@@ -113,7 +113,7 @@
      <rect>
       <x>20</x>
       <y>560</y>
-      <width>741</width>
+      <width>671</width>
       <height>81</height>
      </rect>
     </property>
@@ -137,13 +137,107 @@
      </item>
     </layout>
    </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>10</y>
+      <width>671</width>
+      <height>631</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetFixedSize</enum>
+     </property>
+     <item row="4" column="1">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Latitude(N/S)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Distance</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QLineEdit" name="lineEditDistance"/>
+     </item>
+     <item row="9" column="2">
+      <widget class="QLineEdit" name="lineEditMeasure"/>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Longitude (E/W)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2">
+      <widget class="QLineEdit" name="lineEditAngle"/>
+     </item>
+     <item row="10" column="2">
+      <widget class="QLineEdit" name="lineEditCMD"/>
+     </item>
+     <item row="10" column="1">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>ID CMD</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>North Angle</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLineEdit" name="lineEditLong"/>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLineEdit" name="lineEditLat"/>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>Thang do</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <widget class="QLineEdit" name="lineEditLatDir"/>
+     </item>
+     <item row="6" column="3">
+      <widget class="QLineEdit" name="lineEditLongDir"/>
+     </item>
+     <item row="2" column="2" colspan="2">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>BAN TIN TOA DO MUC TIEU</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>775</width>
+     <width>1382</width>
      <height>22</height>
     </rect>
    </property>

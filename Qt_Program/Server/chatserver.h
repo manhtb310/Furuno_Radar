@@ -6,6 +6,8 @@
 #include <QList>
 #include <QHash>
 #include <QMainWindow>
+#include <QtPositioning/qgeopositioninfosource.h>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ChatServer; }
@@ -17,8 +19,7 @@ class QTcpSocket;
 class QFile;
 class Qstring;
 class QFileDialog;
-class QMessageBox;
-class QTextStream;
+class QTimer;
 
 class ChatServer : public QMainWindow
 {
@@ -27,22 +28,27 @@ class ChatServer : public QMainWindow
 public:
     ChatServer(QWidget *parent = nullptr);
     ~ChatServer();
-signals:
-    void connected();
+    int minimumUpdateInterval() const;
 
+public slots:
+    virtual void startUpdates();
+    virtual void stopUpdates();
 private:
     QTcpServer *server;
     QList<QTcpSocket*> connections;
     QHash<QTcpSocket*, QBuffer*> buffers;
     Ui::ChatServer *ui;
+    QFile *logFile;
+    QTimer *timer;
 private slots:
     void on_btnStop_clicked();
     void on_btnStart_clicked();
-//    void on_btnSend_clicked();
 private slots:
     void addConnection(); //Xu ly khi co mot client ket noi den
     void removeConnection(); //Xu ly khi co mot client ngat ket noi
     void receiveMessage(); //Nhan thong diep tu cac client
     void sendMessage();
+    void readNextPosition();
+    void OpenFile();    // Doc duong dan log file
 };
 #endif // CHATSERVER_H

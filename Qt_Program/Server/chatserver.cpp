@@ -4,6 +4,8 @@
 #include <QHostAddress>
 #include <QTcpSocket>
 #include <QBuffer>
+#include <QtCore>
+#include <QFileDialog>
 
 static const int DEFAULT_PORT = 6789;
 int port;
@@ -13,24 +15,25 @@ QHostAddress server_addr;
 ChatServer::ChatServer(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::ChatServer)
+    ,logFile(new QFile(this))
+    ,timer(new QTimer(this))
 {
     ui->setupUi(this);
     server = new QTcpServer();
 
     connect(server, SIGNAL(newConnection()), this, SLOT(addConnection()));
-//    server_addr = QHostAddress::LocalHost; //Lay dia chi may host
+    connect(timer, SIGNAL(timeout()), this, SLOT(readNextPosition()));
+    connect(ui->btnOpen, SIGNAL(clicked()), this, SLOT(OpenFile()));
 //    connect(ui->btnSend, SIGNAL(clicked()), this , SLOT(sendMessage()));
+    connect(ui->btnSend, SIGNAL(clicked()), this , SLOT(startUpdates()));
 
     server_addr = QHostAddress(ui->lineEditIP->text()); //Lay dia chi may host
-
     port = DEFAULT_PORT; //Cong mac dinh
 
     ui->lineEditIP->setText(server_addr.toString()); //Hien dia chi nay len lineEdit
     ui->lineEditIP->isEnabled();
     ui->lineEditPort->setText(QString::number(port));
-
 }
-
 
 ChatServer::~ChatServer()
 {
@@ -47,7 +50,6 @@ void ChatServer::on_btnStart_clicked()
         qDebug("server started");
         ui->btnStart->setEnabled(false);
         ui->btnStop->setEnabled(true);
-
     }
     else
     {
@@ -67,17 +69,14 @@ void ChatServer::on_btnStop_clicked()
 void ChatServer::addConnection()
 {
     QTcpSocket* connection = server->nextPendingConnection();
-    qDebug() << connection ;
-
     connections.append(connection);
     QBuffer *buffer = new QBuffer(this);
     buffer->open(QIODevice::ReadWrite);
     buffers.insert(connection,buffer);
 
     connect(connection, SIGNAL(disconnected()), this, SLOT(removeConnection()));
-//    connect(connection, SIGNAL(on_btnSend_clicked()), this , SLOT(on_btnSend_clicked()));
     connect(connection, SIGNAL(readyRead()), this , SLOT(receiveMessage()));
-    connect(ui->btnSend, SIGNAL(clicked()), this , SLOT(sendMessage()));
+//    connect(ui->btnSend, SIGNAL(clicked()), this , SLOT(on_btnSend_clicked()));
 
 }
 
@@ -95,58 +94,78 @@ void ChatServer::removeConnection()
 void ChatServer::receiveMessage()
 {
     QTcpSocket *socket = static_cast<QTcpSocket *>(sender());
-    QByteArray line2 = ui->lineEditText->text().toUtf8();
     QBuffer *buffer = buffers.value(socket);
-//    qDebug() << socket->readAll();
     qint64 bytes = buffer->write(socket->readAll());
 
     buffer->seek(buffer->pos() -bytes);
-//    qDebug() << buffer;
+    qDebug() << buffer;
 
     while (buffer->canReadLine())
     {
+        qDebug() << buffer->canReadLine();
         QByteArray line = buffer->readLine();
         foreach (QTcpSocket *connection, connections)
         {
-//            qDebug() << line;
             connection->write(line);
-            ui->textEdit->append(line);
+//            ui->textEdit_SERVER->append(line);
         }
-//        qDebug() << buffer->canReadLine();
+        qDebug() << buffer->canReadLine();
     }
-
 }
+
 void ChatServer::sendMessage()
 {
     QByteArray line = ui->lineEditText->text().toLatin1();
     foreach (QTcpSocket *connection, connections)
     {
-        QBuffer *buffer = buffers.value(connection);
-        qint64 bytes = buffer->write(line);
-        buffer->seek(buffer->pos() -bytes);
-
-//        qDebug() << connection ;
-//        emit connected();
-        QByteArray line2 = buffer->readLine();
-        connection->write(line2);
-        ui->textEdit->append(line2);
-
-        qDebug() << line2 ;
+        qDebug() << connection ;
+        connection->write(line);
+        qDebug() << line ;
     }
     ui->lineEditText->clear();
 
 }
+int ChatServer::minimumUpdateInterval() const
+{
+    return 1000;
 
+}
 
-//void ChatServer::on_btnSend_clicked()
-//{
-//    QByteArray line = ui->lineEditText->text().toLatin1();
-//    foreach (QTcpSocket *connection, connections)
-//    {
-//        qDebug() << connection ;
-//        connection->write(line);
-//        qDebug() << line ;
-//    }
-//    ui->lineEditText->clear();
+void ChatServer:: startUpdates()
+{
+    int  interval = minimumUpdateInterval();
 
-//}
+    timer->start(interval);
+}
+void ChatServer:: stopUpdates()
+{
+    timer->stop();
+
+}
+
+void ChatServer::readNextPosition()
+{
+    if (!logFile->atEnd())
+    {
+        QByteArray line = logFile->readLine().trimmed();
+        qDebug() << line;
+        if (!line.isEmpty()){
+                foreach (QTcpSocket *connection, connections)
+                {
+                    connection->write(line);
+                }
+        }
+    }
+    else
+        stopUpdates();
+
+}
+void ChatServer::OpenFile()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                     "/home", tr("Text (*.txt *.log)"));
+    logFile->setFileName(file_name);
+    if (!logFile->open(QIODevice::ReadOnly))
+        qWarning() << "Error: cannot open source file" << logFile->fileName();
+}
+

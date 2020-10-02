@@ -34,6 +34,7 @@ private slots:
     void toggleConnection();
     void sendMessage();
     void receiveMessage();
+    void Test();
 private:
     Ui::client *ui;
     QBuffer *buffer;
