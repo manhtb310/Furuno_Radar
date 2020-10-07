@@ -1,6 +1,7 @@
 #include "client.h"
 #include "ui_client.h"
 #include "NMEAParser.h"
+#include "NMEAParserData.h"
 static const int DEFAULT_PORT = 6789;
 
 
@@ -42,8 +43,8 @@ client::client(QWidget *parent)
 
     //Hoac click nut Send (gui di)
 
-//    connect(ui->btnSend, SIGNAL(clicked()), this, SLOT(sendMessage()));
-    connect(ui->btnSend, SIGNAL(clicked()), this, SLOT(Test()));
+    connect(ui->btnSend, SIGNAL(clicked()), this, SLOT(sendMessage()));
+//    connect(ui->btnSend, SIGNAL(clicked()), this, SLOT(Test()));
 
     //Su kien ket noi Socket thanh cong
 
@@ -55,79 +56,14 @@ client::client(QWidget *parent)
 
     //Su kien san sang nhan du lieu
 
-//    connect(socket, SIGNAL(readyRead()), this, SLOT(receiveMessage()));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(Test()));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(receiveMessage()));
+//    connect(socket, SIGNAL(readyRead()), this, SLOT(Test()));
 
 
     //Ban dau chua ket noi
 
     setDisconnected();
 }
-
-class MyNMEAParser : public CNMEAParser {
-
-    ///
-    /// \brief This method is called whenever there is a parsing error.
-    ///
-    /// Redefine this method to capture errors.
-    ///
-    /// \param pCmd Pointer to NMEA command that caused the error. Please note that this parameter may be NULL of not completely defined. Use with caution.
-    ///
-    virtual void OnError(CNMEAParserData::ERROR_E nError, char *pCmd) {
-        printf("ERROR for Cmd: %s, Number: %d\n", pCmd, nError);
-    }
-
-protected:
-    ///
-    /// \brief This method is redefined from CNMEAParserPacket::ProcessRxCommand(char *pCmd, char *pData)
-    ///
-    /// Here we are capturing the ProcessRxCommand to print out status. We also are looking for
-    /// the GPGGA message and displaying some data from it.
-    ///
-    /// \param pCmd Pointer to the NMEA command string
-    /// \param pData Comma separated data that belongs to the command
-    /// \return Returns CNMEAParserData::ERROR_OK If successful
-    ///
-    virtual CNMEAParserData::ERROR_E ProcessRxCommand(char *pCmd, char *pData) {
-
-        // Call base class to process the command
-        CNMEAParser::ProcessRxCommand(pCmd, pData);
-
-//        printf("Cmd: %s\nData: %s\n", pCmd, pData);
-
-//        // Check if this is the GPGGA command. If it is, then display some data
-//        if (strstr(pCmd, "GPGGA") != NULL) {
-//            CNMEAParserData::GGA_DATA_T ggaData;
-//            if (GetGPGGA(ggaData) == CNMEAParserData::ERROR_OK) {
-//                printf("GPGGA Parsed!\n");
-//                printf("   Time:                %02d:%02d:%02d\n", ggaData.m_nHour, ggaData.m_nMinute, ggaData.m_nSecond);
-//                printf("   Latitude:            %f\n", ggaData.m_dLatitude);
-//                printf("   Longitude:           %f\n", ggaData.m_dLongitude);
-//                printf("   Altitude:            %.01fM\n", ggaData.m_dAltitudeMSL);
-//                printf("   GPS Quality:         %d\n", ggaData.m_nGPSQuality);
-//                printf("   Satellites in view:  %d\n", ggaData.m_nSatsInView);
-//                printf("   HDOP:                %.02f\n", ggaData.m_dHDOP);
-//                printf("   Differential ID:     %d\n", ggaData.m_nDifferentialID);
-//                printf("   Differential age:    %f\n", ggaData.m_dDifferentialAge);
-//                printf("   Geoidal Separation:  %f\n", ggaData.m_dGeoidalSep);
-//                printf("   Vertical Speed:      %.02f\n", ggaData.m_dVertSpeed);
-//            }
-//        }
-
-//        return CNMEAParserData::ERROR_OK;
-        if (strstr(pCmd, "GPGGA") != NULL) {
-            CNMEAParserData::GGA_DATA_T ggaData;
-            if (GetGPGGA(ggaData) == CNMEAParserData::ERROR_OK) {
-                qDebug() << ggaData.m_dLatitude;
-//                ui->lineEditLat->setText(ggaData.m_dLatitude);
-                qDebug() << ggaData.m_dLongitude;
-//                ui->lineEditLat->setText(ggaData.m_dLatitude);
-            }
-        }
-    }
-};
-
-
 
 client::~client()
 {
@@ -215,40 +151,50 @@ void client::sendMessage()
 void client::receiveMessage()
 
 {
+    CNMEAParser nmea;
+    QByteArray bytes = socket->readAll();
+    char* Sample = bytes.data();
+    qDebug() << Sample;
+    QList<QByteArray> nmea_data = bytes.split(',');
+    QString cmd = nmea_data.value(0);
+    nmea.ProcessNMEABuffer((char *)Sample, (int)strlen(Sample));
 
-    // missing some checks for returns values for the sake of simplicity
-
-    QString line2 = socket->readAll();
-//    qint64 bytes = buffer->write(socket->readAll());
-
-//    qDebug() << "Socket read All :" << line2 ;
-
-//    // go back as many bytes as we just wrote so that it can be read
-//    buffer->seek(buffer->pos() - bytes);
-//    qDebug() << buffer->pos();
-
-    // read only full lines, line by line
-//    while (buffer->canReadLine())
-
-//    {
-//            QString line = buffer->readLine();
-//            qDebug() << line ;
-
-//            ui->textEditChat->append(line2.simplified());
-//    }
-    if (line2.size())
+    if (cmd == "$GPRMC")
     {
-            ui->textEditChat->append(line2.simplified());
-            QList<QByteArray> data = line2.toLatin1().split(',');
-            QString cmd = data.value(0);
+        CNMEAParserData::RMC_DATA_T rmcdata;
+        nmea.GetGPRMC(rmcdata);
+        ui->GPS_Lat->setText(QString::number(rmcdata.m_dLatitude));
+        ui->GPS_LatDir->setText(QString(rmcdata.m_dLatDir));
+        ui->GPS_Long->setText(QString::number(rmcdata.m_dLongitude));
+        ui->GPS_LongDir->setText(QString(rmcdata.m_dLongDir));
 
-            if (cmd =="$RATLL")
-            {
-                ui->lineEditLat->setText(data.value(2));
-            }
-            line2.clear();
+        ui->GPS_Hour->setValue(rmcdata.m_nHour);
+        ui->GPS_Minute->setValue(rmcdata.m_nMinute);
+        ui->GPS_Second->setValue(rmcdata.m_nSecond);
+
+        ui->GPS_Day->setValue(rmcdata.m_nDay);
+        ui->GPS_Month->setValue(rmcdata.m_nMonth);
+        ui->GPS_Year->setValue(rmcdata.m_nYear);
     }
 
+    else if(cmd == "$GPGGA")
+    {
+        CNMEAParserData::GGA_DATA_T ggadata;
+        nmea.GetGPGGA(ggadata);
+
+        ui->GPS_Lat->setText(QString::number(ggadata.m_dLatitude));
+        ui->GPS_LatDir->setText(QString(ggadata.m_dLatDir));
+        ui->GPS_Long->setText(QString::number(ggadata.m_dLongitude));
+        ui->GPS_LongDir->setText(QString(ggadata.m_dLongDir));
+
+    }
+    else if (cmd == "RATLL")
+    {
+
+    }
+
+    nmea.ResetData();
+    bytes.clear();
 
 }
 
@@ -265,14 +211,6 @@ void client::on_btnOpen_clicked()
     }
     QTextStream in (&file);
     int count = 0;
-
-//    QString msg = ui->lineEditMsg->text().toLatin1();
-//    socket->write("<" + ui->lineEditNick->text().toLatin1() + "> " + ui->lineEditMsg->text().toLatin1() + "\n");
-    // Read line by line from text file
-//    while (in.readLineInto(&line))
-//    {
-//        ui->textEditChat->setPlainText(text);
-//    }
     while (!file.atEnd())
     {
         count += 1;
@@ -287,21 +225,5 @@ void client::on_btnOpen_clicked()
 }
 
 void client::Test(void) {
-    // Create a NMEA parser object
-    MyNMEAParser NMEAParser;
-
-    NMEAParser.ResetData();
-
-    //
-    // Define some NMEA test strings.
-    //
-//    const char * szGGASample = "$GPGGA,145416.00,3350.10959,N,11751.22870,W,1,09,0.85,70.3,M,-32.7,M,,*5B";
-//    const char *szGGASample =  socket->readAll();
-    const char *szGGASample = "$GPGGA,020258,2104.077,N,10548.625,E,0,0,,5,M,37,M";
-    qDebug() << szGGASample;
-
-    // Test Individual sentences
-    NMEAParser.ProcessNMEABuffer((char *)szGGASample, (int)strlen(szGGASample));
-
 }
 

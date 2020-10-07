@@ -30,9 +30,9 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-unix:!macx: LIBS += -L$$PWD/../NMEAParser/Software/NMEAParserBuild/NMEAParserLib/ -lNMEAParserLib
+unix:!macx: LIBS += -L$$PWD/../../NMEAParser/Software/NMEAParserBuild/NMEAParserLib/ -lNMEAParserLib
 
-INCLUDEPATH += $$PWD/../NMEAParser/Software/NMEAParserLib
-DEPENDPATH += $$PWD/../NMEAParser/Software/NMEAParserLib
+INCLUDEPATH += $$PWD/../../NMEAParser/Software/NMEAParserLib
+DEPENDPATH += $$PWD/../../NMEAParser/Software/NMEAParserLib
 
-unix:!macx: PRE_TARGETDEPS += $$PWD/../NMEAParser/Software/NMEAParserBuild/NMEAParserLib/libNMEAParserLib.a
+unix:!macx: PRE_TARGETDEPS += $$PWD/../../NMEAParser/Software/NMEAParserBuild/NMEAParserLib/libNMEAParserLib.a

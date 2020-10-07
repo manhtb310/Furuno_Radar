@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
+#include "NMEAParser.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -39,7 +40,6 @@ private:
     Ui::client *ui;
     QBuffer *buffer;
     QTcpSocket *socket;
-
 
 };
 #endif // CLIENT_H

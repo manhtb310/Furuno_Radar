@@ -6,7 +6,7 @@
 #include <QList>
 #include <QHash>
 #include <QMainWindow>
-#include <QtPositioning/qgeopositioninfosource.h>
+//#include <QtPositioning/qgeopositioninfosource.h>
 
 
 QT_BEGIN_NAMESPACE
